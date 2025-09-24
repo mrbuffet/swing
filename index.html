@@ -249,9 +249,9 @@
                 </button>
             </div>
 
-            <!-- Create Alert Form -->
+            <!-- Create/Edit Alert Form -->
             <div id="create-alert-form" class="hidden mb-8 bg-slate-50 dark:bg-slate-800 p-6 rounded-lg">
-                <h3 class="text-xl font-bold mb-4">צור התראה חדשה</h3>
+                <h3 id="alert-form-title" class="text-xl font-bold mb-4">צור התראה חדשה</h3>
                 <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
                         <label class="block text-sm font-medium mb-1">סמל מניה:</label>
@@ -280,7 +280,7 @@
                     </div>
                 </div>
                 <div class="flex gap-4 mt-4">
-                    <button onclick="saveAlert()" class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition">
+                    <button id="save-alert-btn" onclick="saveAlert()" class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition">
                         שמור התראה
                     </button>
                     <button onclick="hideCreateAlert()" class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition">
@@ -304,42 +304,7 @@
                         </tr>
                     </thead>
                     <tbody id="alerts-table">
-                        <tr class="border-b border-slate-200 dark:border-slate-700">
-                            <td class="p-4 font-medium">AAPL</td>
-                            <td class="p-4">סטופ לוס</td>
-                            <td class="p-4">מתחת</td>
-                            <td class="p-4">$145.00</td>
-                            <td class="p-4">
-                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">פעיל</span>
-                            </td>
-                            <td class="p-4 text-sm text-slate-600">25/09/2024</td>
-                            <td class="p-4">
-                                <button class="text-indigo-600 hover:text-indigo-800 ml-2" onclick="editAlert(1)">
-                                    <span class="material-icons text-sm">edit</span>
-                                </button>
-                                <button class="text-red-600 hover:text-red-800" onclick="deleteAlert(1)">
-                                    <span class="material-icons text-sm">delete</span>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr class="border-b border-slate-200 dark:border-slate-700">
-                            <td class="p-4 font-medium">GOOGL</td>
-                            <td class="p-4">יעד רווח</td>
-                            <td class="p-4">מעל</td>
-                            <td class="p-4">$2800.00</td>
-                            <td class="p-4">
-                                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">הושעה</span>
-                            </td>
-                            <td class="p-4 text-sm text-slate-600">24/09/2024</td>
-                            <td class="p-4">
-                                <button class="text-indigo-600 hover:text-indigo-800 ml-2" onclick="editAlert(2)">
-                                    <span class="material-icons text-sm">edit</span>
-                                </button>
-                                <button class="text-red-600 hover:text-red-800" onclick="deleteAlert(2)">
-                                    <span class="material-icons text-sm">delete</span>
-                                </button>
-                            </td>
-                        </tr>
+                        <!-- Example alerts will be replaced by server data -->
                     </tbody>
                 </table>
             </div>
@@ -754,12 +719,33 @@
     }
 
     // Alert Functions
+    let editingAlertId = null; // Global variable to track if we're editing
+
     function showCreateAlert() {
+        editingAlertId = null; // Reset for new alert
+        document.getElementById('alert-form-title').textContent = 'צור התראה חדשה';
+        document.getElementById('save-alert-btn').textContent = 'שמור התראה';
+        document.getElementById('create-alert-form').classList.remove('hidden');
+        clearAlertForm();
+    }
+
+    function showEditAlert(alertId, alertData) {
+        editingAlertId = alertId;
+        document.getElementById('alert-form-title').textContent = 'ערוך התראה';
+        document.getElementById('save-alert-btn').textContent = 'עדכן התראה';
+        
+        // Populate form with existing data
+        document.getElementById('alert-ticker').value = alertData.ticker;
+        document.getElementById('alert-type').value = alertData.type;
+        document.getElementById('alert-condition').value = alertData.condition;
+        document.getElementById('alert-value').value = alertData.value;
+        
         document.getElementById('create-alert-form').classList.remove('hidden');
     }
 
     function hideCreateAlert() {
         document.getElementById('create-alert-form').classList.add('hidden');
+        editingAlertId = null;
         clearAlertForm();
     }
 
@@ -789,24 +775,48 @@
         };
         
         try {
-            showLoading('יוצר התראה...');
-            const response = await fetch('/api/alerts', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(alertData)
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                // Add to table
-                addAlertToTable(result.data);
-                hideCreateAlert();
-                alert('ההתראה נוצרה בהצלחה!');
+            if (editingAlertId) {
+                // Update existing alert
+                showLoading('מעדכן התראה...');
+                const response = await fetch(`/api/alerts/${editingAlertId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(alertData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update table row
+                    updateAlertInTable(editingAlertId, result.data || alertData);
+                    hideCreateAlert();
+                    alert('ההתראה עודכנה בהצלחה!');
+                } else {
+                    alert('שגיאה בעדכון ההתראה: ' + result.message);
+                }
             } else {
-                alert('שגיאה ביצירת ההתראה: ' + result.message);
+                // Create new alert
+                showLoading('יוצר התראה...');
+                const response = await fetch('/api/alerts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(alertData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Add to table
+                    addAlertToTable(result.data);
+                    hideCreateAlert();
+                    alert('ההתראה נוצרה בהצלחה!');
+                } else {
+                    alert('שגיאה ביצירת ההתראה: ' + result.message);
+                }
             }
         } catch (error) {
             console.error('Error:', error);
@@ -836,6 +846,7 @@
             : alert.created || new Date().toLocaleDateString('he-IL');
 
         const row = tbody.insertRow();
+        row.setAttribute('data-alert-id', alert.id);
         row.innerHTML = `
             <td class="p-4 font-medium">${alert.ticker}</td>
             <td class="p-4">${typeNames[alert.type]}</td>
@@ -856,9 +867,56 @@
         `;
     }
 
-    function editAlert(id) {
-        alert('עריכת התראה - בפיתוח');
-        // TODO: Implement edit functionality
+    function updateAlertInTable(alertId, alertData) {
+        const tbody = document.getElementById('alerts-table');
+        const row = tbody.querySelector(`tr[data-alert-id="${alertId}"]`);
+        
+        if (!row) {
+            // If row not found, reload all alerts
+            loadAlertsFromServer();
+            return;
+        }
+        
+        const typeNames = {
+            'price': 'מחיר',
+            'stoploss': 'סטופ לוס',
+            'takeprofit': 'יעד רווח',
+            'breakout': 'פריצה'
+        };
+        const conditionNames = {
+            'above': 'מעל',
+            'below': 'מתחת',
+            'equals': 'שווה'
+        };
+        
+        // Update row content while keeping the same structure
+        const cells = row.cells;
+        cells[0].textContent = alertData.ticker; // Ticker
+        cells[1].textContent = typeNames[alertData.type]; // Type
+        cells[2].textContent = conditionNames[alertData.condition]; // Condition
+        cells[3].textContent = `$${alertData.value}`; // Value
+        // Status and date cells stay the same
+        // Action buttons stay the same
+    }
+
+    async function editAlert(id) {
+        try {
+            showLoading('טוען נתוני התראה...');
+            const response = await fetch('/api/alerts');
+            const alerts = await response.json();
+            const alertToEdit = alerts.find(alert => alert.id === id);
+            
+            if (alertToEdit) {
+                showEditAlert(id, alertToEdit);
+            } else {
+                alert('לא נמצאה התראה לעריכה');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('שגיאה בטעינת נתוני ההתראה');
+        } finally {
+            hideLoading();
+        }
     }
 
     async function deleteAlert(id) {
@@ -888,24 +946,16 @@
         }
     }
 
-    // Load saved alerts on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        loadAlertsFromServer();
-    });
+    // Note: Alerts are now loaded when the alerts tab is shown via showTab override
 
     async function loadAlertsFromServer() {
         try {
             const response = await fetch('/api/alerts');
             const alerts = await response.json();
             
-            // Clear existing alerts (except the example ones)
+            // Clear all existing alerts
             const tbody = document.getElementById('alerts-table');
-            const rows = tbody.getElementsByTagName('tr');
-            
-            // Remove dynamically added alerts (keep the static example ones for now)
-            for (let i = rows.length - 1; i >= 2; i--) { // Keep first 2 rows as examples
-                rows[i].remove();
-            }
+            tbody.innerHTML = '';
             
             // Add server alerts
             alerts.forEach(alert => {
@@ -913,8 +963,30 @@
                     addAlertToTable(alert);
                 }
             });
+            
+            // If no alerts, add a message row
+            if (alerts.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="p-8 text-center text-slate-500">
+                            <span class="material-icons text-4xl mb-2 block">notifications_off</span>
+                            אין התראות פעילות
+                        </td>
+                    </tr>
+                `;
+            }
         } catch (error) {
             console.error('Error loading alerts:', error);
+            // Show error message in table
+            const tbody = document.getElementById('alerts-table');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="p-8 text-center text-red-500">
+                        <span class="material-icons text-4xl mb-2 block">error</span>
+                        שגיאה בטעינת ההתראות
+                    </td>
+                </tr>
+            `;
         }
     }
 
@@ -1264,14 +1336,16 @@ async function deleteChecklist(id) {
         calculateRiskReward();
     }
 
-    // Load saved checklists when the saved-checklists tab is shown
+    // Load data when specific tabs are shown
     document.addEventListener('DOMContentLoaded', function() {
-        // Override the showTab function to load checklists when needed
+        // Override the showTab function to load data when needed
         const originalShowTab = window.showTab;
         window.showTab = function(tabName) {
             originalShowTab(tabName);
             if (tabName === 'saved-checklists') {
                 loadSavedChecklists();
+            } else if (tabName === 'alerts') {
+                loadAlertsFromServer();
             }
         };
     });
