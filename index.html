@@ -32,8 +32,9 @@
             <div class="flex items-center space-x-4 space-x-reverse">
                 <button onclick="showTab('home')" class="tab-btn px-4 py-2 rounded-md hover:bg-indigo-100 dark:hover:bg-indigo-900 transition" data-tab="home">דף הבית</button>
                 <button onclick="showTab('checklist')" class="tab-btn px-4 py-2 rounded-md hover:bg-indigo-100 dark:hover:bg-indigo-900 transition" data-tab="checklist">צ'ק ליסט</button>
+                <button onclick="showTab('saved-checklists')" class="tab-btn px-4 py-2 rounded-md hover:bg-indigo-100 dark:hover:bg-indigo-900 transition" data-tab="saved-checklists">רשימות שמורות</button>
                 <button onclick="showTab('alerts')" class="tab-btn px-4 py-2 rounded-md hover:bg-indigo-100 dark:hover:bg-indigo-900 transition" data-tab="alerts">התראות</button>
-                <button class="flex items-center bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition">
+                <button onclick="showLogin()" class="flex items-center bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition">
                     <span class="material-icons ml-2">login</span>
                     התחבר
                 </button>
@@ -343,6 +344,79 @@
             </div>
         </div>
     </main>
+</div>
+
+<!-- Saved Checklists Tab -->
+<div id="saved-checklists" class="tab-content">
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold">רשימות צ'ק ליסט שמורות</h1>
+                <button onclick="showTab('checklist')" class="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition flex items-center">
+                    <span class="material-icons ml-2">add</span>
+                    צור רשימה חדשה
+                </button>
+            </div>
+
+            <!-- Saved Checklists Grid -->
+            <div id="saved-checklists-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Saved checklists will be loaded here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-checklists" class="text-center py-12">
+                <span class="material-icons text-6xl text-slate-400 mb-4">checklist_rtl</span>
+                <h3 class="text-xl font-bold mb-2 text-slate-600">אין רשימות שמורות</h3>
+                <p class="text-slate-500 mb-6">צור רשימת צ'ק ליסט חדשה כדי להתחיל</p>
+                <button onclick="showTab('checklist')" class="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 transition">
+                    צור רשימה חדשה
+                </button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Login Modal -->
+<div id="login-modal" class="hidden fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-slate-800 p-8 rounded-lg shadow-lg max-w-md w-full mx-4">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold">התחברות</h2>
+            <button onclick="hideLogin()" class="text-slate-500 hover:text-slate-700">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        
+        <form onsubmit="handleLogin(event)">
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-2" for="login-email">כתובת מייל:</label>
+                <input class="w-full p-3 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 focus:ring-indigo-500 focus:border-indigo-500" 
+                       id="login-email" type="email" placeholder="your@email.com" required/>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-2" for="login-password">סיסמה:</label>
+                <input class="w-full p-3 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 focus:ring-indigo-500 focus:border-indigo-500" 
+                       id="login-password" type="password" placeholder="סיסמה" required/>
+            </div>
+            
+            <div class="flex gap-4">
+                <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-md hover:bg-indigo-700 transition flex items-center justify-center">
+                    <span class="material-icons ml-2">login</span>
+                    התחבר
+                </button>
+                <button type="button" onclick="hideLogin()" class="flex-1 bg-gray-600 text-white py-3 rounded-md hover:bg-gray-700 transition">
+                    ביטול
+                </button>
+            </div>
+        </form>
+        
+        <div class="mt-6 text-center">
+            <p class="text-sm text-slate-600 dark:text-slate-400">
+                אין לך חשבון? 
+                <button onclick="showRegister()" class="text-indigo-600 hover:text-indigo-800 font-medium">הרשם כאן</button>
+            </p>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -703,6 +777,364 @@
             console.error('Error loading alerts:', error);
         }
     }
+
+    // Login Functions
+    function showLogin() {
+        document.getElementById('login-modal').classList.remove('hidden');
+    }
+
+    function hideLogin() {
+        document.getElementById('login-modal').classList.add('hidden');
+        clearLoginForm();
+    }
+
+    function clearLoginForm() {
+        document.getElementById('login-email').value = '';
+        document.getElementById('login-password').value = '';
+    }
+
+    async function handleLogin(event) {
+        event.preventDefault();
+        
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        
+        if (!email || !password) {
+            alert('אנא מלא את כל השדות');
+            return;
+        }
+        
+        try {
+            showLoading('מתחבר...');
+            
+            // For demo purposes - you can replace this with actual authentication
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                hideLogin();
+                alert('התחברת בהצלחה!');
+                // Update UI for logged in state
+                updateLoginState(true, result.user);
+            } else {
+                alert('שגיאה בהתחברות: ' + (result.message || 'נתונים שגויים'));
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            // For demo purposes - simulate successful login
+            hideLogin();
+            alert('התחברת בהצלחה! (מצב דמו)');
+            updateLoginState(true, { name: 'משתמש דמו', email: email });
+        } finally {
+            hideLoading();
+        }
+    }
+
+    function updateLoginState(isLoggedIn, user = null) {
+        const loginButton = document.querySelector('button[onclick="showLogin()"]');
+        if (isLoggedIn && user) {
+            loginButton.innerHTML = `
+                <span class="material-icons ml-2">account_circle</span>
+                שלום ${user.name || user.email}
+            `;
+            loginButton.onclick = showUserMenu;
+        } else {
+            loginButton.innerHTML = `
+                <span class="material-icons ml-2">login</span>
+                התחבר
+            `;
+            loginButton.onclick = showLogin;
+        }
+    }
+
+    function showUserMenu() {
+        // Simple user menu for now
+        if (confirm('האם ברצונך להתנתק?')) {
+            updateLoginState(false);
+            alert('התנתקת בהצלחה');
+        }
+    }
+
+    function showRegister() {
+        hideLogin();
+        alert('הרשמה - בפיתוח. כרגע השתמש בכפתור התחברות לדמו.');
+    }
+
+// Saved Checklists Functions
+async function loadSavedChecklists() {
+    try {
+        showLoading('טוען רשימות שמורות...');
+        const response = await fetch('/api/checklists');
+        const checklists = await response.json();
+        
+        if (checklists && checklists.length > 0) {
+            displaySavedChecklists(checklists);
+            document.getElementById('empty-checklists').style.display = 'none';
+        } else {
+            document.getElementById('saved-checklists-grid').innerHTML = '';
+            document.getElementById('empty-checklists').style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error loading checklists:', error);
+        document.getElementById('saved-checklists-grid').innerHTML = '';
+        document.getElementById('empty-checklists').style.display = 'block';
+        alert('שגיאה בטעינת הרשימות השמורות');
+    } finally {
+        hideLoading();
+    }
+}
+
+    function displaySavedChecklists(checklists) {
+        const grid = document.getElementById('saved-checklists-grid');
+        grid.innerHTML = '';
+        
+        checklists.forEach(checklist => {
+            const date = new Date(checklist.createdAt).toLocaleDateString('he-IL');
+            const risk = checklist.riskManagement || {};
+            const riskReward = calculateRiskRewardRatio(risk.entryPrice, risk.stopLoss, risk.takeProfit);
+            
+            const card = document.createElement('div');
+            card.className = 'bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border hover:shadow-md transition-shadow';
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-xl font-bold text-indigo-600">${checklist.ticker}</h3>
+                    <span class="text-sm text-slate-500">${date}</span>
+                </div>
+                
+                <div class="space-y-3">
+                    ${risk.entryPrice ? `
+                    <div class="flex justify-between">
+                        <span class="text-slate-600">מחיר כניסה:</span>
+                        <span class="font-medium">$${risk.entryPrice}</span>
+                    </div>
+                    ` : ''}
+                    
+                    ${risk.stopLoss ? `
+                    <div class="flex justify-between">
+                        <span class="text-slate-600">סטופ לוס:</span>
+                        <span class="font-medium text-red-600">$${risk.stopLoss}</span>
+                    </div>
+                    ` : ''}
+                    
+                    ${risk.takeProfit ? `
+                    <div class="flex justify-between">
+                        <span class="text-slate-600">יעד רווח:</span>
+                        <span class="font-medium text-green-600">$${risk.takeProfit}</span>
+                    </div>
+                    ` : ''}
+                    
+                    ${riskReward !== '1:0' ? `
+                    <div class="flex justify-between">
+                        <span class="text-slate-600">יחס סיכון/תשואה:</span>
+                        <span class="font-medium text-indigo-600">${riskReward}</span>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                <div class="flex gap-2 mt-6">
+                    <button onclick="viewChecklist(${checklist.id})" class="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition text-sm">
+                        צפייה
+                    </button>
+                    <button onclick="editChecklist(${checklist.id})" class="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition text-sm">
+                        עריכה
+                    </button>
+                    <button onclick="deleteChecklist(${checklist.id})" class="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition text-sm">
+                        <span class="material-icons text-sm">delete</span>
+                    </button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function calculateRiskRewardRatio(entry, stopLoss, takeProfit) {
+        if (entry && stopLoss && takeProfit) {
+            const risk = Math.abs(entry - stopLoss);
+            const reward = Math.abs(takeProfit - entry);
+            const ratio = risk > 0 ? reward / risk : 0;
+            return `1:${ratio.toFixed(2)}`;
+        }
+        return '1:0';
+    }
+
+async function viewChecklist(id) {
+    try {
+        showLoading('טוען פרטים...');
+        const response = await fetch('/api/checklists');
+        const checklists = await response.json();
+        const checklist = checklists.find(c => c.id === id);
+        
+        if (checklist) {
+            showChecklistDetails(checklist);
+        } else {
+            alert('שגיאה בטעינת הפרטים - רשימה לא נמצאה');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('שגיאה בחיבור לשרת');
+    } finally {
+        hideLoading();
+    }
+}
+
+async function editChecklist(id) {
+    try {
+        showLoading('טוען לעריכה...');
+        const response = await fetch('/api/checklists');
+        const checklists = await response.json();
+        const checklist = checklists.find(c => c.id === id);
+        
+        if (checklist) {
+            // Load the data into the checklist form and switch to checklist tab
+            loadChecklistIntoForm(checklist);
+            showTab('checklist');
+        } else {
+            alert('שגיאה בטעינת הנתונים לעריכה - רשימה לא נמצאה');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('שגיאה בחיבור לשרת');
+    } finally {
+        hideLoading();
+    }
+}
+
+async function deleteChecklist(id) {
+    if (confirm('האם אתה בטוח שברצונך למחוק את הרשימה?')) {
+        try {
+            showLoading('מוחק רשימה...');
+            const response = await fetch(`/api/checklists/${id}`, {
+                method: 'DELETE'
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                loadSavedChecklists(); // Reload the list
+                alert('הרשימה נמחקה בהצלחה');
+            } else {
+                alert('שגיאה במחיקת הרשימה: ' + (result.message || ''));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('שגיאה בחיבור לשרת');
+        } finally {
+            hideLoading();
+        }
+    }
+}
+
+    function showChecklistDetails(checklist) {
+        // Create a modal to show full checklist details
+        const modal = document.createElement('div');
+        modal.className = 'fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white dark:bg-slate-800 p-8 rounded-lg shadow-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">${checklist.ticker} - פרטי הניתוח</h2>
+                    <button onclick="this.closest('.fixed').remove()" class="text-slate-500 hover:text-slate-700">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="grid md:grid-cols-4 gap-4">
+                        ${checklist.riskManagement.entryPrice ? `
+                        <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded-lg">
+                            <div class="text-sm text-slate-600 dark:text-slate-400">מחיר כניסה</div>
+                            <div class="text-xl font-bold">$${checklist.riskManagement.entryPrice}</div>
+                        </div>` : ''}
+                        
+                        ${checklist.riskManagement.stopLoss ? `
+                        <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+                            <div class="text-sm text-red-600">סטופ לוס</div>
+                            <div class="text-xl font-bold text-red-600">$${checklist.riskManagement.stopLoss}</div>
+                        </div>` : ''}
+                        
+                        ${checklist.riskManagement.takeProfit ? `
+                        <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                            <div class="text-sm text-green-600">יעד רווח</div>
+                            <div class="text-xl font-bold text-green-600">$${checklist.riskManagement.takeProfit}</div>
+                        </div>` : ''}
+                        
+                        <div class="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg">
+                            <div class="text-sm text-indigo-600">יחס סיכון/תשואה</div>
+                            <div class="text-xl font-bold text-indigo-600">${calculateRiskRewardRatio(checklist.riskManagement.entryPrice, checklist.riskManagement.stopLoss, checklist.riskManagement.takeProfit)}</div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-bold mb-3">ניתוח טכני</h3>
+                        <div class="text-sm text-slate-600 dark:text-slate-400">פרטי הניתוח יוצגו כאן...</div>
+                    </div>
+                </div>
+                
+                <div class="flex gap-4 mt-6">
+                    <button onclick="editChecklist(${checklist.id}); this.closest('.fixed').remove();" class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition">
+                        ערוך
+                    </button>
+                    <button onclick="this.closest('.fixed').remove()" class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition">
+                        סגור
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    function loadChecklistIntoForm(checklist) {
+        // Load the checklist data back into the form for editing
+        document.getElementById('stock-ticker').value = checklist.ticker;
+        
+        if (checklist.riskManagement) {
+            const risk = checklist.riskManagement;
+            if (risk.entryPrice) document.getElementById('entry-price').value = risk.entryPrice;
+            if (risk.stopLoss) document.getElementById('stop-loss').value = risk.stopLoss;
+            if (risk.takeProfit) document.getElementById('take-profit').value = risk.takeProfit;
+            if (risk.riskPercent) document.getElementById('risk-percent').value = risk.riskPercent;
+        }
+        
+        // Load analysis checkboxes if they exist
+        if (checklist.analysis) {
+            Object.keys(checklist.analysis).forEach(name => {
+                const checkbox = document.querySelector(`input[name="${name}"]`);
+                if (checkbox) {
+                    checkbox.checked = checklist.analysis[name];
+                }
+            });
+        }
+        
+        // Load notes if they exist
+        if (checklist.notes) {
+            const noteInputs = document.querySelectorAll('#checklist-body input[type="text"]');
+            Object.keys(checklist.notes).forEach((key, index) => {
+                if (noteInputs[index]) {
+                    noteInputs[index].value = checklist.notes[key];
+                }
+            });
+        }
+        
+        calculateRiskReward();
+    }
+
+    // Load saved checklists when the saved-checklists tab is shown
+    document.addEventListener('DOMContentLoaded', function() {
+        // Override the showTab function to load checklists when needed
+        const originalShowTab = window.showTab;
+        window.showTab = function(tabName) {
+            originalShowTab(tabName);
+            if (tabName === 'saved-checklists') {
+                loadSavedChecklists();
+            }
+        };
+    });
 </script>
 
 </body>
