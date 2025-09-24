@@ -16,6 +16,7 @@ app.use(express.static('.'));
 const DATA_DIR = './data';
 const CHECKLISTS_FILE = path.join(DATA_DIR, 'checklists.json');
 const ALERTS_FILE = path.join(DATA_DIR, 'alerts.json');
+const BLOG_FILE = path.join(DATA_DIR, 'blog.json');
 
 // Create data directory if it doesn't exist
 if (!fs.existsSync(DATA_DIR)) {
@@ -29,6 +30,10 @@ if (!fs.existsSync(CHECKLISTS_FILE)) {
 
 if (!fs.existsSync(ALERTS_FILE)) {
     fs.writeFileSync(ALERTS_FILE, JSON.stringify([]));
+}
+
+if (!fs.existsSync(BLOG_FILE)) {
+    fs.writeFileSync(BLOG_FILE, JSON.stringify([]));
 }
 
 // Helper functions
@@ -199,6 +204,91 @@ app.get('/api/stock/:ticker', (req, res) => {
     };
     
     res.json({ success: true, data: mockData });
+});
+
+// Blog API Routes
+
+// Get all blog posts
+app.get('/api/blog', (req, res) => {
+    const posts = readJSONFile(BLOG_FILE);
+    // Sort by creation date (newest first)
+    const sortedPosts = posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    res.json(sortedPosts);
+});
+
+// Get single blog post
+app.get('/api/blog/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const posts = readJSONFile(BLOG_FILE);
+    const post = posts.find(p => p.id === id);
+    
+    if (post) {
+        res.json({ success: true, data: post });
+    } else {
+        res.status(404).json({ success: false, message: 'פוסט לא נמצא' });
+    }
+});
+
+// Create new blog post
+app.post('/api/blog', (req, res) => {
+    const post = {
+        id: Date.now(),
+        ...req.body,
+        author: req.body.author || 'Oleg Kofman',
+        readTime: Math.ceil(req.body.content.split(' ').length / 200) || 5, // Estimate reading time
+        createdAt: new Date().toISOString()
+    };
+    
+    const posts = readJSONFile(BLOG_FILE);
+    posts.push(post);
+    
+    if (writeJSONFile(BLOG_FILE, posts)) {
+        res.json({ success: true, message: 'הפוסט פורסם בהצלחה', data: post });
+    } else {
+        res.status(500).json({ success: false, message: 'שגיאה בפרסום הפוסט' });
+    }
+});
+
+// Update blog post
+app.put('/api/blog/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const posts = readJSONFile(BLOG_FILE);
+    
+    const index = posts.findIndex(p => p.id === id);
+    if (index === -1) {
+        return res.status(404).json({ success: false, message: 'פוסט לא נמצא' });
+    }
+    
+    posts[index] = {
+        ...posts[index],
+        ...req.body,
+        readTime: Math.ceil(req.body.content.split(' ').length / 200) || posts[index].readTime,
+        updatedAt: new Date().toISOString()
+    };
+    
+    if (writeJSONFile(BLOG_FILE, posts)) {
+        res.json({ success: true, message: 'הפוסט עודכן בהצלחה', data: posts[index] });
+    } else {
+        res.status(500).json({ success: false, message: 'שגיאה בעדכון הפוסט' });
+    }
+});
+
+// Delete blog post
+app.delete('/api/blog/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const posts = readJSONFile(BLOG_FILE);
+    
+    const filteredPosts = posts.filter(p => p.id !== id);
+    
+    if (filteredPosts.length === posts.length) {
+        return res.status(404).json({ success: false, message: 'פוסט לא נמצא' });
+    }
+    
+    if (writeJSONFile(BLOG_FILE, filteredPosts)) {
+        res.json({ success: true, message: 'הפוסט נמחק בהצלחה' });
+    } else {
+        res.status(500).json({ success: false, message: 'שגיאה במחיקת הפוסט' });
+    }
 });
 
 // Serve index.html for all routes (SPA)

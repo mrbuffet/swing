@@ -34,6 +34,7 @@
                 <button onclick="showTab('checklist')" class="tab-btn px-4 py-2 rounded-md hover:bg-indigo-100 dark:hover:bg-indigo-900 transition" data-tab="checklist">צ'ק ליסט</button>
                 <button onclick="showTab('saved-checklists')" class="tab-btn px-4 py-2 rounded-md hover:bg-indigo-100 dark:hover:bg-indigo-900 transition" data-tab="saved-checklists">רשימות שמורות</button>
                 <button onclick="showTab('alerts')" class="tab-btn px-4 py-2 rounded-md hover:bg-indigo-100 dark:hover:bg-indigo-900 transition" data-tab="alerts">התראות</button>
+                <button onclick="showTab('blog')" class="tab-btn px-4 py-2 rounded-md hover:bg-indigo-100 dark:hover:bg-indigo-900 transition" data-tab="blog">בלוג</button>
                 <button onclick="showLogin()" class="flex items-center bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition">
                     <span class="material-icons ml-2">login</span>
                     התחבר
@@ -384,6 +385,94 @@
         </div>
     </div>
 </div>
+
+<!-- Blog Tab -->
+<div id="blog" class="tab-content">
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold">בלוג סווינג טרייד</h1>
+                <button onclick="showCreatePost()" class="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition flex items-center">
+                    <span class="material-icons ml-2">add</span>
+                    פוסט חדש
+                </button>
+            </div>
+
+            <!-- Create/Edit Post Form -->
+            <div id="create-post-form" class="hidden mb-8 bg-slate-50 dark:bg-slate-800 p-6 rounded-lg">
+                <h3 id="post-form-title" class="text-xl font-bold mb-4">צור פוסט חדש</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">כותרת הפוסט:</label>
+                        <input class="w-full p-3 border rounded-md" id="post-title" type="text" placeholder="הכנס כותרת..."/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">קטגוריה:</label>
+                        <select class="w-full p-3 border rounded-md" id="post-category">
+                            <option value="analysis">ניתוח טכני</option>
+                            <option value="strategy">אסטרטגיות מסחר</option>
+                            <option value="market">מגמות שוק</option>
+                            <option value="education">חינוך פיננסי</option>
+                            <option value="news">חדשות</option>
+                            <option value="personal">אישי</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">תגיות (מופרדות בפסיק):</label>
+                        <input class="w-full p-3 border rounded-md" id="post-tags" type="text" placeholder="מניות, ניתוח, רווח..."/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">תוכן הפוסט:</label>
+                        <textarea class="w-full p-3 border rounded-md h-64 resize-y" id="post-content" placeholder="כתוב את תוכן הפוסט כאן..."></textarea>
+                    </div>
+                </div>
+                <div class="flex gap-4 mt-6">
+                    <button id="save-post-btn" onclick="savePost()" class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition">
+                        פרסם פוסט
+                    </button>
+                    <button onclick="hideCreatePost()" class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition">
+                        ביטול
+                    </button>
+                </div>
+            </div>
+
+            <!-- Blog Posts Grid -->
+            <div id="blog-posts-grid" class="space-y-6">
+                <!-- Blog posts will be loaded here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-blog" class="text-center py-12">
+                <span class="material-icons text-6xl text-slate-400 mb-4">article</span>
+                <h3 class="text-xl font-bold mb-2 text-slate-600">אין פוסטים בבלוג</h3>
+                <p class="text-slate-500 mb-6">התחל בכתיבת הפוסט הראשון שלך</p>
+                <button onclick="showCreatePost()" class="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 transition">
+                    כתוב פוסט חדש
+                </button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Footer with Copyright -->
+<footer class="bg-slate-900 text-slate-300 py-6 mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center mb-4 md:mb-0">
+                <span class="material-icons text-indigo-400 text-2xl ml-2">ssid_chart</span>
+                <span class="font-bold text-lg">סווינג טרייד</span>
+            </div>
+            <div class="text-center md:text-right">
+                <p class="text-sm">
+                    © 2025 <span class="font-medium text-indigo-400">Oleg Kofman</span>. All rights reserved.
+                </p>
+                <p class="text-xs text-slate-400 mt-1">
+                    מערכת ניהול מניות חכמה
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
 
 <script>
     // Tab Management
@@ -1346,9 +1435,347 @@ async function deleteChecklist(id) {
                 loadSavedChecklists();
             } else if (tabName === 'alerts') {
                 loadAlertsFromServer();
+            } else if (tabName === 'blog') {
+                loadBlogPosts();
             }
         };
     });
+
+    // Blog Functions
+    let editingPostId = null; // Global variable to track if we're editing a post
+
+    function showCreatePost() {
+        editingPostId = null; // Reset for new post
+        document.getElementById('post-form-title').textContent = 'צור פוסט חדש';
+        document.getElementById('save-post-btn').textContent = 'פרסם פוסט';
+        document.getElementById('create-post-form').classList.remove('hidden');
+        clearPostForm();
+    }
+
+    function showEditPost(postId, postData) {
+        editingPostId = postId;
+        document.getElementById('post-form-title').textContent = 'ערוך פוסט';
+        document.getElementById('save-post-btn').textContent = 'עדכן פוסט';
+        
+        // Populate form with existing data
+        document.getElementById('post-title').value = postData.title;
+        document.getElementById('post-category').value = postData.category;
+        document.getElementById('post-tags').value = postData.tags ? postData.tags.join(', ') : '';
+        document.getElementById('post-content').value = postData.content;
+        
+        document.getElementById('create-post-form').classList.remove('hidden');
+    }
+
+    function hideCreatePost() {
+        document.getElementById('create-post-form').classList.add('hidden');
+        editingPostId = null;
+        clearPostForm();
+    }
+
+    function clearPostForm() {
+        document.getElementById('post-title').value = '';
+        document.getElementById('post-category').value = 'analysis';
+        document.getElementById('post-tags').value = '';
+        document.getElementById('post-content').value = '';
+    }
+
+    async function savePost() {
+        const title = document.getElementById('post-title').value.trim();
+        const category = document.getElementById('post-category').value;
+        const tags = document.getElementById('post-tags').value.split(',').map(tag => tag.trim()).filter(tag => tag);
+        const content = document.getElementById('post-content').value.trim();
+        
+        if (!title || !content) {
+            alert('אנא מלא לפחות כותרת ותוכן');
+            return;
+        }
+        
+        const postData = {
+            title: title,
+            category: category,
+            tags: tags,
+            content: content,
+            excerpt: content.substring(0, 200) + (content.length > 200 ? '...' : '')
+        };
+        
+        try {
+            if (editingPostId) {
+                // Update existing post
+                showLoading('מעדכן פוסט...');
+                const response = await fetch(`/api/blog/${editingPostId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(postData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    hideCreatePost();
+                    loadBlogPosts(); // Reload posts
+                    alert('הפוסט עודכן בהצלחה!');
+                } else {
+                    alert('שגיאה בעדכון הפוסט: ' + result.message);
+                }
+            } else {
+                // Create new post
+                showLoading('פורסם פוסט...');
+                const response = await fetch('/api/blog', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(postData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    hideCreatePost();
+                    loadBlogPosts(); // Reload posts
+                    alert('הפוסט פורסם בהצלחה!');
+                } else {
+                    alert('שגיאה בפרסום הפוסט: ' + result.message);
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('שגיאה בחיבור לשרת');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    async function loadBlogPosts() {
+        try {
+            const response = await fetch('/api/blog');
+            const posts = await response.json();
+            
+            if (posts && posts.length > 0) {
+                displayBlogPosts(posts);
+                document.getElementById('empty-blog').style.display = 'none';
+            } else {
+                document.getElementById('blog-posts-grid').innerHTML = '';
+                document.getElementById('empty-blog').style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error loading blog posts:', error);
+            // Show sample posts for demo
+            const samplePosts = [
+                {
+                    id: 1,
+                    title: 'כיצד לזהות מגמות שורים בשוק',
+                    category: 'analysis',
+                    tags: ['ניתוח טכני', 'מגמות', 'אסטרטגיה'],
+                    excerpt: 'בפוסט זה נלמד כיצד לזהות מגמות עולה בשוק המניות ולנצל אותן למסחר יעיל...',
+                    content: 'תוכן מלא של הפוסט כאן...',
+                    author: 'Oleg Kofman',
+                    createdAt: new Date().toISOString(),
+                    readTime: 5
+                },
+                {
+                    id: 2,
+                    title: 'ניהול סיכונים במסחר יומי',
+                    category: 'strategy',
+                    tags: ['ניהול סיכונים', 'מסחר יומי', 'רווח'],
+                    excerpt: 'אחד הכללים החשובים ביותר במסחר הוא ניהול נכון של הסיכונים. במאמר זה נבחן...',
+                    content: 'תוכן מלא של הפוסט כאן...',
+                    author: 'Oleg Kofman',
+                    createdAt: new Date(Date.now() - 86400000).toISOString(),
+                    readTime: 8
+                }
+            ];
+            displayBlogPosts(samplePosts);
+            document.getElementById('empty-blog').style.display = 'none';
+        }
+    }
+
+    function displayBlogPosts(posts) {
+        const grid = document.getElementById('blog-posts-grid');
+        grid.innerHTML = '';
+        
+        posts.forEach(post => {
+            const date = new Date(post.createdAt).toLocaleDateString('he-IL');
+            const categoryNames = {
+                'analysis': 'ניתוח טכני',
+                'strategy': 'אסטרטגיות מסחר',
+                'market': 'מגמות שוק',
+                'education': 'חינוך פיננסי',
+                'news': 'חדשות',
+                'personal': 'אישי'
+            };
+            
+            const postElement = document.createElement('article');
+            postElement.className = 'bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border hover:shadow-lg transition-shadow';
+            postElement.innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full text-xs font-medium">
+                                ${categoryNames[post.category] || post.category}
+                            </span>
+                            <span class="text-sm text-slate-500">${post.readTime || 5} דקות קריאה</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">${post.title}</h2>
+                        <p class="text-slate-600 dark:text-slate-400 mb-3 leading-relaxed">${post.excerpt}</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4 text-sm text-slate-500">
+                                <span class="flex items-center">
+                                    <span class="material-icons text-sm ml-1">person</span>
+                                    ${post.author || 'Oleg Kofman'}
+                                </span>
+                                <span class="flex items-center">
+                                    <span class="material-icons text-sm ml-1">calendar_today</span>
+                                    ${date}
+                                </span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="viewPost(${post.id})" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition text-sm">
+                                    קרא עוד
+                                </button>
+                                <button onclick="editPost(${post.id})" class="bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 transition">
+                                    <span class="material-icons text-sm">edit</span>
+                                </button>
+                                <button onclick="deletePost(${post.id})" class="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700 transition">
+                                    <span class="material-icons text-sm">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                ${post.tags && post.tags.length > 0 ? `
+                <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                    ${post.tags.map(tag => `
+                        <span class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-1 rounded-full text-xs">
+                            #${tag}
+                        </span>
+                    `).join('')}
+                </div>
+                ` : ''}
+            `;
+            grid.appendChild(postElement);
+        });
+    }
+
+    async function viewPost(id) {
+        try {
+            showLoading('טוען פוסט...');
+            const response = await fetch(`/api/blog/${id}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                const post = result.data;
+                const date = new Date(post.createdAt).toLocaleDateString('he-IL');
+                const categoryNames = {
+                    'analysis': 'ניתוח טכני',
+                    'strategy': 'אסטרטגיות מסחר',
+                    'market': 'מגמות שוק',
+                    'education': 'חינוך פיננסי',
+                    'news': 'חדשות',
+                    'personal': 'אישי'
+                };
+                
+                const modal = document.createElement('div');
+                modal.className = 'fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="bg-white dark:bg-slate-800 p-8 rounded-lg shadow-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                        <div class="flex justify-between items-center mb-6">
+                            <h1 class="text-2xl font-bold">${post.title}</h1>
+                            <button onclick="this.closest('.fixed').remove()" class="text-slate-500 hover:text-slate-700">
+                                <span class="material-icons">close</span>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center gap-4 mb-6 text-sm text-slate-600 dark:text-slate-400">
+                            <span class="bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 px-3 py-1 rounded-full font-medium">
+                                ${categoryNames[post.category] || post.category}
+                            </span>
+                            <span class="flex items-center">
+                                <span class="material-icons text-sm ml-1">person</span>
+                                ${post.author}
+                            </span>
+                            <span class="flex items-center">
+                                <span class="material-icons text-sm ml-1">calendar_today</span>
+                                ${date}
+                            </span>
+                            <span class="flex items-center">
+                                <span class="material-icons text-sm ml-1">schedule</span>
+                                ${post.readTime} דקות קריאה
+                            </span>
+                        </div>
+                        
+                        <div class="prose prose-slate dark:prose-invert max-w-none mb-6">
+                            ${post.content.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/## (.*?)(\n|$)/g, '<h2 class="text-xl font-bold mt-6 mb-3">$1</h2>')}
+                        </div>
+                        
+                        ${post.tags && post.tags.length > 0 ? `
+                        <div class="flex flex-wrap gap-2 pt-4 border-t border-slate-200 dark:border-slate-700">
+                            ${post.tags.map(tag => `
+                                <span class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-full text-sm">
+                                    #${tag}
+                                </span>
+                            `).join('')}
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            } else {
+                alert('שגיאה בטעינת הפוסט: ' + (result.message || ''));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('שגיאה בחיבור לשרת');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    async function editPost(id) {
+        try {
+            showLoading('טוען פוסט לעריכה...');
+            const response = await fetch(`/api/blog/${id}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                showEditPost(id, result.data);
+            } else {
+                alert('שגיאה בטעינת הפוסט לעריכה: ' + (result.message || ''));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('שגיאה בחיבור לשרת');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    async function deletePost(id) {
+        if (confirm('האם אתה בטוח שברצונך למחוק את הפוסט?')) {
+            try {
+                showLoading('מוחק פוסט...');
+                const response = await fetch(`/api/blog/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    loadBlogPosts(); // Reload posts
+                    alert('הפוסט נמחק בהצלחה!');
+                } else {
+                    alert('שגיאה במחיקת הפוסט: ' + (result.message || ''));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('שגיאה בחיבור לשרת');
+            } finally {
+                hideLoading();
+            }
+        }
+    }
 </script>
 
 </body>
