@@ -100,12 +100,13 @@
             <div class="mb-6">
                 <label class="block text-lg font-semibold mb-2" for="stock-ticker">טיקר המניה:</label>
                 <div class="flex gap-4">
-                    <input class="flex-1 p-3 border border-slate-300 dark:border-slate-700 rounded-md bg-slate-50 dark:bg-slate-800 focus:ring-indigo-500 focus:border-indigo-500 text-lg" id="stock-ticker" type="text" placeholder="הכנס סמל מניה (לדוגמה: AAPL)"/>
-                    <button onclick="loadStockData()" class="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 transition flex items-center">
-                        <span class="material-icons ml-2">search</span>
-                        חפש
+                    <input class="flex-1 p-3 border border-slate-300 dark:border-slate-700 rounded-md bg-slate-50 dark:bg-slate-800 focus:ring-indigo-500 focus:border-indigo-500 text-lg" id="stock-ticker" type="text" placeholder="הכנס סמל מניה (לדוגמה: AAPL)" oninput="checkExistingStock()"/>
+                    <button id="display-btn" onclick="displayExistingStock()" disabled class="bg-gray-400 text-white px-6 py-3 rounded-md transition flex items-center cursor-not-allowed">
+                        <span class="material-icons ml-2">visibility</span>
+                        הצג
                     </button>
                 </div>
+                <div id="stock-status" class="mt-2 text-sm"></div>
             </div>
 
             <!-- Analysis Checklist -->
@@ -445,9 +446,64 @@
     // Initialize - show home tab by default
     document.addEventListener('DOMContentLoaded', function() {
         showTab('home');
+        loadSavedChecklistsForCheck(); // Load checklists for checking existing stocks
     });
 
     // Checklist Functions
+    let savedChecklists = [];
+    let currentExistingStock = null;
+
+    // Load saved checklists on page load for checking
+    async function loadSavedChecklistsForCheck() {
+        try {
+            const response = await fetch('/api/checklists');
+            savedChecklists = await response.json();
+        } catch (error) {
+            console.error('Error loading checklists for check:', error);
+            savedChecklists = [];
+        }
+    }
+
+    // Check if stock exists in saved checklists
+    async function checkExistingStock() {
+        const ticker = document.getElementById('stock-ticker').value.trim().toUpperCase();
+        const displayBtn = document.getElementById('display-btn');
+        const statusDiv = document.getElementById('stock-status');
+        
+        if (!ticker) {
+            displayBtn.disabled = true;
+            displayBtn.className = 'bg-gray-400 text-white px-6 py-3 rounded-md transition flex items-center cursor-not-allowed';
+            statusDiv.innerHTML = '';
+            currentExistingStock = null;
+            return;
+        }
+
+        // Find existing stock in saved checklists
+        const existingStock = savedChecklists.find(checklist => 
+            checklist.ticker.toUpperCase() === ticker
+        );
+
+        if (existingStock) {
+            displayBtn.disabled = false;
+            displayBtn.className = 'bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition flex items-center cursor-pointer';
+            statusDiv.innerHTML = '<span class="text-green-600 font-medium">✓ קיים צ\'ק ליסט שמור למניה זאת</span>';
+            currentExistingStock = existingStock;
+        } else {
+            displayBtn.disabled = true;
+            displayBtn.className = 'bg-gray-400 text-white px-6 py-3 rounded-md transition flex items-center cursor-not-allowed';
+            statusDiv.innerHTML = '<span class="text-slate-500">מניה חדשה - לא נמצא צ\'ק ליסט קיים</span>';
+            currentExistingStock = null;
+        }
+    }
+
+    // Display existing stock data
+    function displayExistingStock() {
+        if (currentExistingStock) {
+            loadChecklistIntoForm(currentExistingStock);
+            document.getElementById('stock-status').innerHTML = '<span class="text-indigo-600 font-medium">✓ נתוני הצ\'ק ליסט נטענו בהצלחה</span>';
+        }
+    }
+
     async function loadStockData() {
         const ticker = document.getElementById('stock-ticker').value;
         if (!ticker) {
@@ -525,6 +581,34 @@
             return;
         }
         
+        const tickerUpper = ticker.toUpperCase();
+        
+        // Check if stock already exists
+        const existingStock = savedChecklists.find(checklist => 
+            checklist.ticker.toUpperCase() === tickerUpper
+        );
+        
+        if (existingStock) {
+            const shouldUpdate = confirm(
+                `כבר קיים צ'ק ליסט למניה ${tickerUpper}.\n\n` +
+                `האם ברצונך לעדכן את הצ'ק ליסט הקיים?\n\n` +
+                `• "אישור" - עדכן את הקיים\n` +
+                `• "ביטול" - בטל את השמירה`
+            );
+            
+            if (!shouldUpdate) {
+                return; // User canceled
+            }
+            
+            // Update existing checklist
+            return await updateExistingChecklist(existingStock.id);
+        }
+        
+        // Create new checklist
+        await createNewChecklist(tickerUpper);
+    }
+
+    async function createNewChecklist(ticker) {
         // Collect checkboxes data
         const checkboxes = {};
         document.querySelectorAll('#checklist-body input[type="checkbox"]').forEach(cb => {
@@ -539,7 +623,7 @@
         
         // Collect form data
         const checklistData = {
-            ticker: ticker.toUpperCase(),
+            ticker: ticker,
             analysis: checkboxes,
             notes: notes,
             riskManagement: {
@@ -551,7 +635,7 @@
         };
         
         try {
-            showLoading('שומר צ\'ק ליסט...');
+            showLoading('שומר צ\'ק ליסט חדש...');
             const response = await fetch('/api/checklists', {
                 method: 'POST',
                 headers: {
@@ -564,8 +648,64 @@
             
             if (result.success) {
                 alert('הצ\'ק ליסט נשמר בהצלחה!');
+                // Refresh the saved checklists for future checks
+                await loadSavedChecklistsForCheck();
+                // Update the display button status
+                checkExistingStock();
             } else {
                 alert('שגיאה בשמירת הצ\'ק ליסט: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('שגיאה בחיבור לשרת');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    async function updateExistingChecklist(id) {
+        // Collect checkboxes data
+        const checkboxes = {};
+        document.querySelectorAll('#checklist-body input[type="checkbox"]').forEach(cb => {
+            checkboxes[cb.name] = cb.checked;
+        });
+        
+        // Collect notes
+        const notes = {};
+        document.querySelectorAll('#checklist-body input[type="text"]').forEach((input, index) => {
+            notes[`note_${index}`] = input.value;
+        });
+        
+        // Collect form data
+        const updateData = {
+            analysis: checkboxes,
+            notes: notes,
+            riskManagement: {
+                entryPrice: parseFloat(document.getElementById('entry-price').value) || null,
+                stopLoss: parseFloat(document.getElementById('stop-loss').value) || null,
+                takeProfit: parseFloat(document.getElementById('take-profit').value) || null,
+                riskPercent: parseFloat(document.getElementById('risk-percent').value) || 2
+            }
+        };
+        
+        try {
+            showLoading('מעדכן צ\'ק ליסט קיים...');
+            const response = await fetch(`/api/checklists/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updateData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('הצ\'ק ליסט עודכן בהצלחה!');
+                // Refresh the saved checklists for future checks
+                await loadSavedChecklistsForCheck();
+            } else {
+                alert('שגיאה בעדכון הצ\'ק ליסט: ' + result.message);
             }
         } catch (error) {
             console.error('Error:', error);
