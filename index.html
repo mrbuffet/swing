@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>סווינג טרייד - ניהול מניות חכם</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <style>
+        body {
+            font-family: 'Assistant', sans-serif;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100">
+
+<!-- Navigation -->
+<nav class="bg-white dark:bg-slate-900 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <div class="flex items-center">
+                <span class="material-icons text-indigo-600 text-3xl">ssid_chart</span>
+                <span class="font-bold text-xl mr-2">סווינג טרייד</span>
+            </div>
+            <div class="flex items-center space-x-4 space-x-reverse">
+                <button onclick="showTab('home')" class="tab-btn px-4 py-2 rounded-md hover:bg-indigo-100 dark:hover:bg-indigo-900 transition" data-tab="home">דף הבית</button>
+                <button onclick="showTab('checklist')" class="tab-btn px-4 py-2 rounded-md hover:bg-indigo-100 dark:hover:bg-indigo-900 transition" data-tab="checklist">צ'ק ליסט</button>
+                <button onclick="showTab('alerts')" class="tab-btn px-4 py-2 rounded-md hover:bg-indigo-100 dark:hover:bg-indigo-900 transition" data-tab="alerts">התראות</button>
+                <button class="flex items-center bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition">
+                    <span class="material-icons ml-2">login</span>
+                    התחבר
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Home Tab -->
+<div id="home" class="tab-content active">
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="bg-white dark:bg-slate-900 p-8 rounded-lg shadow-lg text-center">
+            <h1 class="text-4xl font-bold mb-6 text-indigo-600">ברוך הבא לסווינג טרייד</h1>
+            <p class="text-xl mb-8 text-slate-600 dark:text-slate-300">
+                נהל את המניות שלך בצורה מקצועית עם צ'ק ליסט שיטתי והתראות חכמות
+            </p>
+            
+            <div class="grid md:grid-cols-2 gap-8 mt-12">
+                <div class="bg-gradient-to-br from-indigo-500 to-purple-600 p-6 rounded-lg text-white cursor-pointer hover:scale-105 transition-transform" onclick="showTab('checklist')">
+                    <span class="material-icons text-5xl mb-4">checklist</span>
+                    <h3 class="text-2xl font-bold mb-3">צ'ק ליסט מניות</h3>
+                    <p>נתח מניות בצורה שיטתית עם כלי הניתוח הטכני שלנו</p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-green-500 to-teal-600 p-6 rounded-lg text-white cursor-pointer hover:scale-105 transition-transform" onclick="showTab('alerts')">
+                    <span class="material-icons text-5xl mb-4">notifications_active</span>
+                    <h3 class="text-2xl font-bold mb-3">ניהול התראות</h3>
+                    <p>קבל התראות על שינויים חשובים במחירי המניות</p>
+                </div>
+            </div>
+
+            <div class="mt-12 bg-slate-50 dark:bg-slate-800 p-6 rounded-lg">
+                <h3 class="text-2xl font-bold mb-4">למה לבחור בסווינג טרייד?</h3>
+                <div class="grid md:grid-cols-3 gap-6 text-center">
+                    <div>
+                        <span class="material-icons text-4xl text-indigo-600 mb-2">trending_up</span>
+                        <h4 class="font-bold mb-2">ניתוח שיטתי</h4>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">פעל לפי רשימת בדיקות מוכחת</p>
+                    </div>
+                    <div>
+                        <span class="material-icons text-4xl text-green-600 mb-2">speed</span>
+                        <h4 class="font-bold mb-2">מהיר ופשוט</h4>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">ממשק פשוט וידידותי למשתמש</p>
+                    </div>
+                    <div>
+                        <span class="material-icons text-4xl text-purple-600 mb-2">security</span>
+                        <h4 class="font-bold mb-2">בטוח ומוגן</h4>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">כל הנתונים שלך מוגנים ומוצפנים</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Checklist Tab -->
+<div id="checklist" class="tab-content">
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-lg">
+            <h1 class="text-3xl font-bold mb-6 text-center">צ'ק ליסט למסחר סווינג</h1>
+            
+            <!-- Stock Input -->
+            <div class="mb-6">
+                <label class="block text-lg font-semibold mb-2" for="stock-ticker">טיקר המניה:</label>
+                <div class="flex gap-4">
+                    <input class="flex-1 p-3 border border-slate-300 dark:border-slate-700 rounded-md bg-slate-50 dark:bg-slate-800 focus:ring-indigo-500 focus:border-indigo-500 text-lg" id="stock-ticker" type="text" placeholder="הכנס סמל מניה (לדוגמה: AAPL)"/>
+                    <button onclick="loadStockData()" class="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 transition flex items-center">
+                        <span class="material-icons ml-2">search</span>
+                        חפש
+                    </button>
+                </div>
+            </div>
+
+            <!-- Analysis Checklist -->
+            <div class="overflow-x-auto mb-8">
+                <table class="w-full text-right border-collapse">
+                    <thead>
+                        <tr class="border-b-2 border-slate-200 dark:border-slate-700">
+                            <th class="p-4 font-semibold text-right">קריטריון ניתוח</th>
+                            <th class="p-4 font-semibold bg-red-100 dark:bg-red-900/50 rounded-t-lg text-center">דובי 🐻</th>
+                            <th class="p-4 font-semibold bg-green-100 dark:bg-green-900/50 rounded-t-lg text-center">שורי 🐂</th>
+                            <th class="p-4 font-semibold bg-gray-100 dark:bg-gray-800 rounded-t-lg text-center">הערות</th>
+                        </tr>
+                    </thead>
+                    <tbody id="checklist-body">
+                        <tr class="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800">
+                            <td class="p-4 font-medium">תצורת נרות: דוג'י, פטיש, נר בולען</td>
+                            <td class="p-4 text-center">
+                                <input class="form-checkbox h-6 w-6 text-red-600 rounded focus:ring-red-500" type="checkbox" name="candles_bearish"/>
+                            </td>
+                            <td class="p-4 text-center">
+                                <input class="form-checkbox h-6 w-6 text-green-600 rounded focus:ring-green-500" type="checkbox" name="candles_bullish"/>
+                            </td>
+                            <td class="p-4">
+                                <input class="w-full p-2 border rounded text-sm" type="text" placeholder="הערה..."/>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800">
+                            <td class="p-4 font-medium">טרנד במסגרת זמן גבוהה (חודשי/שבועי)</td>
+                            <td class="p-4 text-center">
+                                <input class="form-checkbox h-6 w-6 text-red-600 rounded focus:ring-red-500" type="checkbox" name="trend_bearish"/>
+                            </td>
+                            <td class="p-4 text-center">
+                                <input class="form-checkbox h-6 w-6 text-green-600 rounded focus:ring-green-500" type="checkbox" name="trend_bullish"/>
+                            </td>
+                            <td class="p-4">
+                                <input class="w-full p-2 border rounded text-sm" type="text" placeholder="הערה..."/>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800">
+                            <td class="p-4 font-medium">נפח מסחר יחסית לטרנד</td>
+                            <td class="p-4 text-center">
+                                <input class="form-checkbox h-6 w-6 text-red-600 rounded focus:ring-red-500" type="checkbox" name="volume_bearish"/>
+                            </td>
+                            <td class="p-4 text-center">
+                                <input class="form-checkbox h-6 w-6 text-green-600 rounded focus:ring-green-500" type="checkbox" name="volume_bullish"/>
+                            </td>
+                            <td class="p-4">
+                                <input class="w-full p-2 border rounded text-sm" type="text" placeholder="הערה..."/>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800">
+                            <td class="p-4 font-medium">CCI - בין -100 ל +100</td>
+                            <td class="p-4 text-center">
+                                <input class="form-checkbox h-6 w-6 text-red-600 rounded focus:ring-red-500" type="checkbox" name="cci_bearish"/>
+                            </td>
+                            <td class="p-4 text-center">
+                                <input class="form-checkbox h-6 w-6 text-green-600 rounded focus:ring-green-500" type="checkbox" name="cci_bullish"/>
+                            </td>
+                            <td class="p-4">
+                                <input class="w-full p-2 border rounded text-sm" placeholder="הערה..."/>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800">
+                            <td class="p-4 font-medium">רמות תמיכה והתנגדות</td>
+                            <td class="p-4 text-center">
+                                <input class="form-checkbox h-6 w-6 text-red-600 rounded focus:ring-red-500" type="checkbox" name="support_bearish"/>
+                            </td>
+                            <td class="p-4 text-center">
+                                <input class="form-checkbox h-6 w-6 text-green-600 rounded focus:ring-green-500" type="checkbox" name="support_bullish"/>
+                            </td>
+                            <td class="p-4">
+                                <input class="w-full p-2 border rounded text-sm" placeholder="הערה..."/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Risk Management -->
+            <div class="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg mb-6">
+                <h2 class="text-2xl font-bold mb-4 flex items-center">
+                    <span class="material-icons text-orange-500 ml-2">security</span>
+                    ניהול סיכונים
+                </h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1" for="entry-price">מחיר כניסה:</label>
+                        <input class="w-full p-3 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900" id="entry-price" type="number" step="0.01" placeholder="0.00"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1" for="stop-loss">סטופ לוס:</label>
+                        <input class="w-full p-3 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900" id="stop-loss" type="number" step="0.01" placeholder="0.00"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1" for="take-profit">יעד רווח:</label>
+                        <input class="w-full p-3 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900" id="take-profit" type="number" step="0.01" placeholder="0.00"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1" for="risk-percent">אחוז סיכון:</label>
+                        <input class="w-full p-3 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900" id="risk-percent" type="number" step="0.1" placeholder="2%" value="2"/>
+                    </div>
+                </div>
+                
+                <div class="mt-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <span class="font-medium">יחס סיכון/תשואה:</span>
+                        <span id="risk-reward-ratio" class="text-xl font-bold text-indigo-600">1:0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-4 justify-center">
+                <button onclick="saveChecklist()" class="bg-green-600 text-white px-8 py-3 rounded-md hover:bg-green-700 transition flex items-center text-lg font-medium">
+                    <span class="material-icons ml-2">save</span>
+                    שמור צ'ק ליסט
+                </button>
+                <button onclick="createAlert()" class="bg-orange-600 text-white px-8 py-3 rounded-md hover:bg-orange-700 transition flex items-center text-lg font-medium">
+                    <span class="material-icons ml-2">notifications_active</span>
+                    צור התראה
+                </button>
+                <button onclick="clearForm()" class="bg-gray-600 text-white px-8 py-3 rounded-md hover:bg-gray-700 transition flex items-center text-lg font-medium">
+                    <span class="material-icons ml-2">clear</span>
+                    נקה טופס
+                </button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Alerts Tab -->
+<div id="alerts" class="tab-content">
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold">ניהול התראות</h1>
+                <button onclick="showCreateAlert()" class="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition flex items-center">
+                    <span class="material-icons ml-2">add</span>
+                    התראה חדשה
+                </button>
+            </div>
+
+            <!-- Create Alert Form -->
+            <div id="create-alert-form" class="hidden mb-8 bg-slate-50 dark:bg-slate-800 p-6 rounded-lg">
+                <h3 class="text-xl font-bold mb-4">צור התראה חדשה</h3>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">סמל מניה:</label>
+                        <input class="w-full p-3 border rounded-md" id="alert-ticker" type="text" placeholder="AAPL"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">סוג התראה:</label>
+                        <select class="w-full p-3 border rounded-md" id="alert-type">
+                            <option value="price">מחיר</option>
+                            <option value="stoploss">סטופ לוס</option>
+                            <option value="takeprofit">יעד רווח</option>
+                            <option value="breakout">פריצה</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">תנאי:</label>
+                        <select class="w-full p-3 border rounded-md" id="alert-condition">
+                            <option value="above">מעל</option>
+                            <option value="below">מתחת</option>
+                            <option value="equals">שווה</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">ערך:</label>
+                        <input class="w-full p-3 border rounded-md" id="alert-value" type="number" step="0.01" placeholder="150.00"/>
+                    </div>
+                </div>
+                <div class="flex gap-4 mt-4">
+                    <button onclick="saveAlert()" class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition">
+                        שמור התראה
+                    </button>
+                    <button onclick="hideCreateAlert()" class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition">
+                        ביטול
+                    </button>
+                </div>
+            </div>
+
+            <!-- Alerts Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-right">
+                    <thead>
+                        <tr class="border-b border-slate-200 dark:border-slate-700">
+                            <th class="p-4 font-semibold">מניה</th>
+                            <th class="p-4 font-semibold">סוג</th>
+                            <th class="p-4 font-semibold">תנאי</th>
+                            <th class="p-4 font-semibold">ערך</th>
+                            <th class="p-4 font-semibold">סטטוס</th>
+                            <th class="p-4 font-semibold">תאריך יצירה</th>
+                            <th class="p-4 font-semibold">פעולות</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alerts-table">
+                        <tr class="border-b border-slate-200 dark:border-slate-700">
+                            <td class="p-4 font-medium">AAPL</td>
+                            <td class="p-4">סטופ לוס</td>
+                            <td class="p-4">מתחת</td>
+                            <td class="p-4">$145.00</td>
+                            <td class="p-4">
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">פעיל</span>
+                            </td>
+                            <td class="p-4 text-sm text-slate-600">25/09/2024</td>
+                            <td class="p-4">
+                                <button class="text-indigo-600 hover:text-indigo-800 ml-2" onclick="editAlert(1)">
+                                    <span class="material-icons text-sm">edit</span>
+                                </button>
+                                <button class="text-red-600 hover:text-red-800" onclick="deleteAlert(1)">
+                                    <span class="material-icons text-sm">delete</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-slate-200 dark:border-slate-700">
+                            <td class="p-4 font-medium">GOOGL</td>
+                            <td class="p-4">יעד רווח</td>
+                            <td class="p-4">מעל</td>
+                            <td class="p-4">$2800.00</td>
+                            <td class="p-4">
+                                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">הושעה</span>
+                            </td>
+                            <td class="p-4 text-sm text-slate-600">24/09/2024</td>
+                            <td class="p-4">
+                                <button class="text-indigo-600 hover:text-indigo-800 ml-2" onclick="editAlert(2)">
+                                    <span class="material-icons text-sm">edit</span>
+                                </button>
+                                <button class="text-red-600 hover:text-red-800" onclick="deleteAlert(2)">
+                                    <span class="material-icons text-sm">delete</span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Tab Management
+    function showTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // Remove active class from all buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('bg-indigo-600', 'text-white');
+        });
+        
+        // Show selected tab
+        document.getElementById(tabName).classList.add('active');
+        
+        // Highlight active button
+        const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
+        if (activeBtn) {
+            activeBtn.classList.add('bg-indigo-600', 'text-white');
+        }
+    }
+
+    // Initialize - show home tab by default
+    document.addEventListener('DOMContentLoaded', function() {
+        showTab('home');
+    });
+
+    // Checklist Functions
+    async function loadStockData() {
+        const ticker = document.getElementById('stock-ticker').value;
+        if (!ticker) {
+            alert('אנא הכנס סמל מניה');
+            return;
+        }
+        
+        try {
+            showLoading('טוען נתונים...');
+            const response = await fetch(`/api/stock/${ticker}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                const data = result.data;
+                alert(`נתוני ${ticker}:\nמחיר: $${data.price.toFixed(2)}\nשינוי: ${data.change.toFixed(2)}\nנפח: ${data.volume.toLocaleString()}`);
+            } else {
+                alert('שגיאה בטעינת נתונים');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('שגיאה בחיבור לשרת');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    function showLoading(message = 'טוען...') {
+        // Create or update loading indicator
+        let loader = document.getElementById('loading-indicator');
+        if (!loader) {
+            loader = document.createElement('div');
+            loader.id = 'loading-indicator';
+            loader.className = 'fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50';
+            loader.innerHTML = `
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-lg text-center">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+                    <p class="text-lg font-medium">${message}</p>
+                </div>
+            `;
+            document.body.appendChild(loader);
+        }
+        loader.style.display = 'flex';
+    }
+
+    function hideLoading() {
+        const loader = document.getElementById('loading-indicator');
+        if (loader) {
+            loader.style.display = 'none';
+        }
+    }
+
+    function calculateRiskReward() {
+        const entry = parseFloat(document.getElementById('entry-price').value) || 0;
+        const stopLoss = parseFloat(document.getElementById('stop-loss').value) || 0;
+        const takeProfit = parseFloat(document.getElementById('take-profit').value) || 0;
+        
+        if (entry && stopLoss && takeProfit) {
+            const risk = Math.abs(entry - stopLoss);
+            const reward = Math.abs(takeProfit - entry);
+            const ratio = risk > 0 ? reward / risk : 0;
+            
+            document.getElementById('risk-reward-ratio').textContent = `1:${ratio.toFixed(2)}`;
+        }
+    }
+
+    // Add event listeners for risk calculation
+    ['entry-price', 'stop-loss', 'take-profit'].forEach(id => {
+        document.getElementById(id).addEventListener('input', calculateRiskReward);
+    });
+
+    async function saveChecklist() {
+        const ticker = document.getElementById('stock-ticker').value;
+        if (!ticker) {
+            alert('אנא הכנס סמל מניה לפני השמירה');
+            return;
+        }
+        
+        // Collect checkboxes data
+        const checkboxes = {};
+        document.querySelectorAll('#checklist-body input[type="checkbox"]').forEach(cb => {
+            checkboxes[cb.name] = cb.checked;
+        });
+        
+        // Collect notes
+        const notes = {};
+        document.querySelectorAll('#checklist-body input[type="text"]').forEach((input, index) => {
+            notes[`note_${index}`] = input.value;
+        });
+        
+        // Collect form data
+        const checklistData = {
+            ticker: ticker.toUpperCase(),
+            analysis: checkboxes,
+            notes: notes,
+            riskManagement: {
+                entryPrice: parseFloat(document.getElementById('entry-price').value) || null,
+                stopLoss: parseFloat(document.getElementById('stop-loss').value) || null,
+                takeProfit: parseFloat(document.getElementById('take-profit').value) || null,
+                riskPercent: parseFloat(document.getElementById('risk-percent').value) || 2
+            }
+        };
+        
+        try {
+            showLoading('שומר צ\'ק ליסט...');
+            const response = await fetch('/api/checklists', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(checklistData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('הצ\'ק ליסט נשמר בהצלחה!');
+            } else {
+                alert('שגיאה בשמירת הצ\'ק ליסט: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('שגיאה בחיבור לשרת');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    function createAlert() {
+        const ticker = document.getElementById('stock-ticker').value;
+        const stopLoss = document.getElementById('stop-loss').value;
+        const takeProfit = document.getElementById('take-profit').value;
+        
+        if (!ticker) {
+            alert('אנא הכנס סמל מניה');
+            return;
+        }
+        
+        showTab('alerts');
+        
+        // Pre-fill alert form if we have data
+        if (stopLoss) {
+            document.getElementById('alert-ticker').value = ticker;
+            document.getElementById('alert-type').value = 'stoploss';
+            document.getElementById('alert-condition').value = 'below';
+            document.getElementById('alert-value').value = stopLoss;
+            showCreateAlert();
+        }
+    }
+
+    function clearForm() {
+        if (confirm('האם אתה בטוח שברצונך לנקות את הטופס?')) {
+            document.getElementById('stock-ticker').value = '';
+            document.getElementById('entry-price').value = '';
+            document.getElementById('stop-loss').value = '';
+            document.getElementById('take-profit').value = '';
+            document.getElementById('risk-percent').value = '2';
+            
+            // Clear all checkboxes
+            document.querySelectorAll('#checklist-body input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('#checklist-body input[type="text"]').forEach(input => input.value = '');
+            
+            document.getElementById('risk-reward-ratio').textContent = '1:0';
+        }
+    }
+
+    // Alert Functions
+    function showCreateAlert() {
+        document.getElementById('create-alert-form').classList.remove('hidden');
+    }
+
+    function hideCreateAlert() {
+        document.getElementById('create-alert-form').classList.add('hidden');
+        clearAlertForm();
+    }
+
+    function clearAlertForm() {
+        document.getElementById('alert-ticker').value = '';
+        document.getElementById('alert-type').value = 'price';
+        document.getElementById('alert-condition').value = 'above';
+        document.getElementById('alert-value').value = '';
+    }
+
+    async function saveAlert() {
+        const ticker = document.getElementById('alert-ticker').value;
+        const type = document.getElementById('alert-type').value;
+        const condition = document.getElementById('alert-condition').value;
+        const value = document.getElementById('alert-value').value;
+        
+        if (!ticker || !value) {
+            alert('אנא מלא את כל השדות החובה');
+            return;
+        }
+        
+        const alertData = {
+            ticker: ticker.toUpperCase(),
+            type: type,
+            condition: condition,
+            value: parseFloat(value)
+        };
+        
+        try {
+            showLoading('יוצר התראה...');
+            const response = await fetch('/api/alerts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(alertData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Add to table
+                addAlertToTable(result.data);
+                hideCreateAlert();
+                alert('ההתראה נוצרה בהצלחה!');
+            } else {
+                alert('שגיאה ביצירת ההתראה: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('שגיאה בחיבור לשרת');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    function addAlertToTable(alert) {
+        const tbody = document.getElementById('alerts-table');
+        const typeNames = {
+            'price': 'מחיר',
+            'stoploss': 'סטופ לוס',
+            'takeprofit': 'יעד רווח',
+            'breakout': 'פריצה'
+        };
+        const conditionNames = {
+            'above': 'מעל',
+            'below': 'מתחת',
+            'equals': 'שווה'
+        };
+        
+        // Format date properly
+        const createdDate = alert.createdAt 
+            ? new Date(alert.createdAt).toLocaleDateString('he-IL')
+            : alert.created || new Date().toLocaleDateString('he-IL');
+
+        const row = tbody.insertRow();
+        row.innerHTML = `
+            <td class="p-4 font-medium">${alert.ticker}</td>
+            <td class="p-4">${typeNames[alert.type]}</td>
+            <td class="p-4">${conditionNames[alert.condition]}</td>
+            <td class="p-4">$${alert.value}</td>
+            <td class="p-4">
+                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">פעיל</span>
+            </td>
+            <td class="p-4 text-sm text-slate-600">${createdDate}</td>
+            <td class="p-4">
+                <button class="text-indigo-600 hover:text-indigo-800 ml-2" onclick="editAlert(${alert.id})">
+                    <span class="material-icons text-sm">edit</span>
+                </button>
+                <button class="text-red-600 hover:text-red-800" onclick="deleteAlert(${alert.id})">
+                    <span class="material-icons text-sm">delete</span>
+                </button>
+            </td>
+        `;
+    }
+
+    function editAlert(id) {
+        alert('עריכת התראה - בפיתוח');
+        // TODO: Implement edit functionality
+    }
+
+    async function deleteAlert(id) {
+        if (confirm('האם אתה בטוח שברצונך למחוק את ההתראה?')) {
+            try {
+                showLoading('מוחק התראה...');
+                const response = await fetch(`/api/alerts/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Remove from table
+                    const row = document.querySelector(`button[onclick="deleteAlert(${id})"]`).closest('tr');
+                    if (row) row.remove();
+                    alert('ההתראה נמחקה בהצלחה');
+                } else {
+                    alert('שגיאה במחיקת ההתראה: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('שגיאה בחיבור לשרת');
+            } finally {
+                hideLoading();
+            }
+        }
+    }
+
+    // Load saved alerts on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadAlertsFromServer();
+    });
+
+    async function loadAlertsFromServer() {
+        try {
+            const response = await fetch('/api/alerts');
+            const alerts = await response.json();
+            
+            // Clear existing alerts (except the example ones)
+            const tbody = document.getElementById('alerts-table');
+            const rows = tbody.getElementsByTagName('tr');
+            
+            // Remove dynamically added alerts (keep the static example ones for now)
+            for (let i = rows.length - 1; i >= 2; i--) { // Keep first 2 rows as examples
+                rows[i].remove();
+            }
+            
+            // Add server alerts
+            alerts.forEach(alert => {
+                if (alert.id) { // Only server alerts have numeric IDs
+                    addAlertToTable(alert);
+                }
+            });
+        } catch (error) {
+            console.error('Error loading alerts:', error);
+        }
+    }
+</script>
+
+</body>
+</html>
